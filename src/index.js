@@ -17,9 +17,10 @@ const useLocalStorage = (initialState, key) => {
 
    useEffect(() => {
     localStorage.setItem(key, JSON.stringify({ value }));
-    setTimeout(() => {
+    const id = setInterval(() => {
       console.log(value)
-    }, 4000)
+    }, 3000)
+    return () => clearInterval(id)
   }, [value]);
 
    return [value, setValue]
