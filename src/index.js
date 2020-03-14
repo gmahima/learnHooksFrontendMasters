@@ -1,44 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {render} from 'react-dom'
 
 import './styles.scss';
 
 
-const Counter = ({max, step}) => {
-  const [count, setCount] = useState(0);
+const useLocalStorage = (initialState, key) => {
+  const get = () => {
+    const storage = localStorage.getItem(key);
+    if (storage) {
+      return (JSON.parse(storage)['value']) 
+    }
+    return initialState;
+  };
 
-  useEffect(()=>{
-    document.title = `counter: ${count}`
-    console.log(count)
-  },[count])
+   const [value, setValue] = useState(get());
+
+   useEffect(() => {
+    localStorage.setItem(key, JSON.stringify({ value }));
+    setTimeout(() => {
+      console.log(value)
+    }, 4000)
+  }, [value]);
+
+   return [value, setValue]
+}
+
+const Counter = ({max, step}) => {
+  const [count, setCount] = useLocalStorage(0, 'c');
+  const countRef = useRef();
+  console.log("countRef before: ", countRef)
+
+  let message = ''
+  if(countRef.current < count) {
+    message = "higher"
+  }
+  else{
+    message = "lower"
+  }
+
+  countRef.current = count;
+  console.log("countRef after: ", countRef)
+
   const increment = () => {
-      setCount(count+1);
-    // setCount(count+1);
-    // setCount(count+1);
-    // setCount(p => {
-    //   if (p>=max){
-    //     return p
-    //   }
-    //   else {
-    //     return p+ step
-    //   }
-    // });
-    // setCount(p => p+1); //will compute the value & pass but update state only oncce
-    // setCount(p => p+1);
-    // console.log(count);
+      setCount(count+step);
   }
   const decrement = () => {
     setCount(count-step);
     // setCount(count+1);
     // setCount(count+1);
-    console.log(count);
   }
   const reset = () => {
     setCount(0);
-    console.log(count);
   }
   return (
     <main className="Counter">
+      <p>{message}</p>
       <p className="count">{count}</p>
       <section className="controls">
         <button onClick={increment}>Increment</button>
